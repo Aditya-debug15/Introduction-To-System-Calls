@@ -1,5 +1,5 @@
 # Introduction to System Calls
-It is part of the first assignment of the OSNW course in Monsoon 2021 
+It is part of the first assignment of the OSNW course in Monsoon 2021 <br>
 Motivate of these questions were to establish a strong understanding of the various system-calls<br>
 
 ## System-Calls used
@@ -19,12 +19,20 @@ Also we should try to read parts of the file that are multiple of 2.
 5. Write that block using `write`.
 6. For printing progress bar we can use combination of `sprintf`, `write` and `fflush`.
 
+## Compile
+`gcc q1.c `
+`./a.out <input file path>`
+
 # Ques 2
 1. We are given a file, number of parts the file is divided into, and the part of the file that has to be reversed.
 2. Also we are required to print the progress bar.
 
 ## Procedure
 It has a same procedure as that of 1st question only slight difference is the calculation part that decides from where to place the cursor using lseek.
+
+## Compile
+`gcc q2.c `
+`./a.out <input file path> <number of parts> <desired part>`
 
 # Ques 3
 Given a file name 
@@ -37,6 +45,13 @@ Given a file name
 2. Execute the system call `stat(file_name,&fileperms)`, it returns value tell us whether a file exist or not, if file exist it fills the fileperm variable with the data we need.
 3. Use `fileperms.st_mode`, `&` and MACROS in stat file to check for each permission.
 for example `fileperms.st_mode & S_IRUSR` returns true if user has read permission else it returns false 
+
+## Compile
+`gcc q3.c `
+`./a.out <input file path>`
+
+# Input file path
+The code works for both relative and absolute file paths
 
 # Some Assumptions
 1. The progress bar works in efficient manner if the file size is large.
