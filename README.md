@@ -20,8 +20,8 @@ Also we should try to read parts of the file that are multiple of 2.
 6. For printing progress bar we can use combination of `sprintf`, `write` and `fflush`.
 
 ## Compile
-`gcc q1.c `
-`./a.out <input file path>`
+`gcc q1.c `<br>
+`./a.out <input file path>`<br>
 
 # Ques 2
 1. We are given a file, number of parts the file is divided into, and the part of the file that has to be reversed.
@@ -31,8 +31,8 @@ Also we should try to read parts of the file that are multiple of 2.
 It has a same procedure as that of 1st question only slight difference is the calculation part that decides from where to place the cursor using lseek.
 
 ## Compile
-`gcc q2.c `
-`./a.out <input file path> <number of parts> <desired part>`
+`gcc q2.c `<br>
+`./a.out <input file path> <number of parts> <desired part>`<br>
 
 # Ques 3
 Given a file name 
@@ -47,8 +47,8 @@ Given a file name
 for example `fileperms.st_mode & S_IRUSR` returns true if user has read permission else it returns false 
 
 ## Compile
-`gcc q3.c `
-`./a.out <input file path>`
+`gcc q3.c `<br>
+`./a.out <input file path>`<br>
 
 # Input file path
 The code works for both relative and absolute file paths
