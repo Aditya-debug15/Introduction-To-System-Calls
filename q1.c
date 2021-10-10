@@ -31,8 +31,14 @@ int main(int argc, char *argv[])
     char *percentage_buffer = (char *)calloc(100, sizeof(char));
     long long filesize, number_of_reads;
     long long i, last;
-
+    // source is the unique identification for source file
     source = open(argv[1], O_RDONLY);
+    if(source<0)
+    {        
+        perror("Error: ");
+        exit(-1);
+    }
+    // argv[1] is the path pf source file
     char search='/';
     int pos_search=0;
     for(int i=0;i<strlen(argv[1]);i++)
@@ -42,10 +48,13 @@ int main(int argc, char *argv[])
             pos_search=i;
         }
     }
+    // after this i have the last position of '/' in the path
+    // this implies after that position file's name start
     if(pos_search!=0)
     {
         pos_search++;
     }
+    // above is an edge case when the file is in current directory
     char *temp_ifn=(char *) calloc(1000, sizeof(char));
     char *temppathname=(char *) calloc(1000, sizeof(char));
     char *pathname=(char *) calloc(1000, sizeof(char));
@@ -63,15 +72,28 @@ int main(int argc, char *argv[])
         temp_ifn[j]=argv[1][i];
     } 
     temp_ifn[j]='\0';
+    // temp_ifn now conatins the name of the output file
     sprintf(temppathname,"%sAssignment/",temppathname);
-    mkdir(temppathname,0777);
+    // temppathname contains the path of the directory
+    mkdir(temppathname,0700);
     sprintf(pathname,"%s%s",temppathname,temp_ifn);
-    dest = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, 0744);
+    // pathname contains th epath of destination
+    dest = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if(dest<0)
+    {        
+        perror("Error: ");
+        exit(-1);
+    }
     filesize = lseek(source, (off_t)0, SEEK_END);
     //filesize is lastby +offset
     // to find number of times i have to raed from the file
-    // What i have done is i read 1000 bytes at a time
+    if(filesize<=0)
+    {
+        write(STDOUT_FILENO,"Error\n",6);
+        exit(-1);
+    }
     int block_size=get_bs(filesize);
+    // block size is the max number of bytes i can read in one time
     if (filesize % block_size == 0)
     {
         number_of_reads = filesize / block_size;
@@ -82,8 +104,8 @@ int main(int argc, char *argv[])
         last = filesize - (number_of_reads * block_size);
         number_of_reads++;
     }
-    printf("Source file size is %lld\n", filesize);
-    printf("%lld %lld\n", number_of_reads, last);
+    // in 1st i went to the first position of the last block and reverse that block and write
+    // then went to 1st position of second last block and reverse that and so ..on
     long long int rea=0;
     for (i = number_of_reads - 1; i >= 0; i--)
     { //read byte by byte from end
@@ -92,13 +114,12 @@ int main(int argc, char *argv[])
         rea+=n;
         if (n < 1)
         {
-            printf("%lld", i);
-            fprintf(stderr, "can't read 1 byte");
+            // for error handling printf("%lld", i);
+            perror("Error: ");
             exit(-1);
         }
-        // buf is an array of 1024 bytes
         // reverse kar dete hai
-        // o(512) constant time
+        // o(block size) constant time
         for(int j=0;j<n;j++)
         {
             buf2[j]=buf[n-j-1];
@@ -106,7 +127,7 @@ int main(int argc, char *argv[])
         m = write(dest, buf2, n);
         if (m < 1)
         {
-            fprintf(stderr, "can't write 1 byte");
+            perror("Error: ");
             exit(-1);
         }
         double percentage = (rea * (100.0)) / filesize;

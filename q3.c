@@ -10,7 +10,7 @@ void file_perms(int n,char* file_name)
     if(stat(file_name,&fileperms)==-1)
     {
         write(STDOUT_FILENO,"File Does Not Exist",20);
-        exit(1);
+        _exit(1);
     }
     // user read
     char *output=(char*)calloc(1000,sizeof(char));
@@ -73,15 +73,9 @@ void directory_perms(int n,char* file_name)
 {
     struct stat dirperms;
     char *output=(char*)calloc(1000,sizeof(char));
-    if(stat(file_name,&dirperms)==-1)
-    {
-        sprintf(output,"Directory is created: Yes");
-        write(STDOUT_FILENO,output,strlen(output));
-        exit(1);
-    }
     // printing if directory exist
     // user read
-
+    stat(file_name,&dirperms);
     if(dirperms.st_mode & S_IRUSR)
         sprintf(output,"User has read permissions on directory: Yes\n");
     else
@@ -142,7 +136,7 @@ int main(int argc, char *argv[])
     if(argc!=2)
     {
         write(STDOUT_FILENO,"Incorrect Input\n",16);
-        exit(1);
+        _exit(1);
     }
     int source, dest, n, m;
     char *buf = (char *)calloc(10000, sizeof(char));
@@ -162,6 +156,7 @@ int main(int argc, char *argv[])
     }
     char *temp_ifn=(char *) calloc(1000, sizeof(char));
     char *temppathname=(char *) calloc(1000, sizeof(char));
+    char *temppathname2=(char *) calloc(1000, sizeof(char));
     char *pathname1=(char *) calloc(1000, sizeof(char));
     char *pathname2=(char *) calloc(1000, sizeof(char));
     int k=0;
@@ -179,12 +174,26 @@ int main(int argc, char *argv[])
     } 
     temp_ifn[j]='\0';
     sprintf(temppathname,"%sAssignment/",temppathname);
+    sprintf(temppathname2,"%s",temppathname);
     sprintf(pathname1,"%s%s",temppathname,temp_ifn);
     temp_ifn[0]='2';
     temp_ifn[1]='_';
     sprintf(pathname2,"%s%s",temppathname,temp_ifn);
+    struct stat dirperms;
+    char *output=(char*)calloc(1000,sizeof(char));
+    if(stat(temppathname,&dirperms)==-1)
+    {
+        sprintf(output,"Directory is created: No");
+        write(STDOUT_FILENO,output,strlen(output));
+        _exit(1);
+    }
+    else{
+        sprintf(output,"Directory is created: Yes\n");
+        write(STDOUT_FILENO,output,strlen(output));
+    }
+    free(output);
     file_perms(1,pathname1);
     file_perms(2,pathname2);
-    directory_perms(1,temppathname);
+    directory_perms(1,temppathname2);
     return 0;
 }

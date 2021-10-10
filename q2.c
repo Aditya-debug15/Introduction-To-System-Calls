@@ -31,7 +31,14 @@ int main(int argc, char *argv[])
     char *percentage_buffer = (char *)calloc(100, sizeof(char));
     long long filesize, number_of_reads;
     long long i, last;
+    // source is the unique identification for source file
     source = open(argv[1], O_RDONLY);
+    if(source<0)
+    {        
+        perror("Error: ");
+        exit(-1);
+    }
+    // argv[1] is the path pf source file
     char search='/';
     int pos_search=0;
     for(int i=0;i<strlen(argv[1]);i++)
@@ -41,10 +48,13 @@ int main(int argc, char *argv[])
             pos_search=i;
         }
     }
+    // after this i have the last position of '/' in the path
+    // this implies after that position file's name start
     if(pos_search!=0)
     {
         pos_search++;
     }
+    // above is an edge case when the file is in current directory
     char *temp_ifn=(char *) calloc(1000, sizeof(char));
     char *temppathname=(char *) calloc(1000, sizeof(char));
     char *pathname=(char *) calloc(1000, sizeof(char));
@@ -62,19 +72,24 @@ int main(int argc, char *argv[])
         temp_ifn[j]=argv[1][i];
     } 
     temp_ifn[j]='\0';
+    // temp_ifn now conatins the name of the output file
     sprintf(temppathname,"%sAssignment/",temppathname);
-    mkdir(temppathname,0777);
+    // temppathname contains the path of the directory
+    mkdir(temppathname,0700);
     sprintf(pathname,"%s%s",temppathname,temp_ifn);
-    dest = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, 0744);
+    // pathname contains th epath of destination
+    dest = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if(dest<0)
+    {        
+        perror("Error: ");
+        exit(-1);
+    }
     filesize = lseek(source, (off_t)0, SEEK_END);
     //filesize is lastby +offset
-    // to find number of times i have to raed from the file
-    // What i have done is i read 1000 bytes at a time
     int part_size,part_number,number_of_parts;
     number_of_parts=(argv[2][0]-'0');
     part_number=(argv[3][0]-'0');
     part_size=filesize/number_of_parts;
-    printf("%d ",part_size);
     int block_size=get_bs(part_size);
     if (part_size % block_size == 0)
     {
@@ -87,7 +102,10 @@ int main(int argc, char *argv[])
         last = part_size - (number_of_reads * block_size);
         number_of_reads++;
     }
-    printf("%lld %lld\n", number_of_reads, last);
+    // difference between 1st and 2nd was that
+    // the part i have to copy is int he middle of the file 
+    // so i have to precalculate last and number of reads
+    // where last implies the block size for the last read operation
     long long int rea=0;
     long long int where_to_read=(part_size*(part_number))-block_size;
     for (i = number_of_reads - 1; i >= 0; i--)
@@ -99,8 +117,8 @@ int main(int argc, char *argv[])
             rea+=n;
             if (n < 1)
             {
-                printf("%lld", i);
-                fprintf(stderr, "can't read 1 byte");
+                // for error handling printf("%lld", i);
+                perror("Error: ");
                 exit(-1);
             }
             // buf is an array of 1024 bytes
@@ -113,7 +131,8 @@ int main(int argc, char *argv[])
             m = write(dest, buf2, n);
             if (m < 1)
             {
-                fprintf(stderr, "can't write 1 byte");
+                // for error handling printf("%lld", i);
+                perror("Error: ");
                 exit(-1);
             }
             double percentage = (rea * (100.0)) / part_size;
@@ -128,8 +147,8 @@ int main(int argc, char *argv[])
             rea+=n;
             if (n < 1)
             {
-                printf("%lld", i);
-                fprintf(stderr, "can't read 1 byte");
+                // for error handling printf("%lld", i);
+                perror("Error: ");
                 exit(-1);
             }
             // buf is an array of 1024 bytes
@@ -142,7 +161,8 @@ int main(int argc, char *argv[])
             m = write(dest, buf2, n);
             if (m < 1)
             {
-                fprintf(stderr, "can't write 1 byte");
+                // for error handling printf("%lld", i);
+                perror("Error: ");
                 exit(-1);
             }
             double percentage = (rea * (100.0)) / part_size;
@@ -150,6 +170,7 @@ int main(int argc, char *argv[])
             write(STDOUT_FILENO, percentage_buffer, strlen(percentage_buffer));
             fflush(stdout);
             where_to_read-=block_size;
+            // this contain the location for lseek 
         }
     }
     write(STDOUT_FILENO, "\nDONE\n", 6);
